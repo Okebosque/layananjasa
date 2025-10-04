@@ -1,0 +1,238 @@
+TRAVELINDO
+CEPAT DAN NYAMAN
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TRAVELINDO</title>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+
+<style>
+  body { margin: 0; font-family: Arial, sans-serif; background: #ffffff; color: #111; }
+  header { background: #6a1b9a; color: white; padding: 18px; text-align: center; font-size: 22px; font-weight: 700; }
+  nav { display: flex; justify-content: space-around; background: #000; padding: 10px 0; }
+  nav a { color: white; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+  .container { padding: 16px; }
+  .rute-card { background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); border-left: 6px solid #6a1b9a; }
+  .rute-card h3 { margin: 0; color: #3b0b52; font-size: 18px; }
+  .btn { background: #6a1b9a; color: white; padding: 12px 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 15px; }
+  form { display: none; background: white; padding: 18px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+  label { display: block; margin-top: 12px; font-weight: bold; color: #222; }
+  input, select, textarea { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ddd; border-radius: 8px; }
+  .footer { background: #000; color: white; text-align: center; padding: 12px; margin-top: 20px; font-size: 13px; }
+  #map { height: 280px; border-radius: 10px; margin-top: 12px; }
+  .row { display:flex; gap:8px; }
+  .col { flex:1; }
+  .small { font-size:12px; color:#666; margin-top:8px;}
+</style>
+</head>
+<body>
+
+<header>TRAVELINDO</header>
+
+<nav>
+  <a href="#" onclick="showRute()"><img src="https://img.icons8.com/ios-filled/50/ffffff/car.png" alt="car" style="width:18px;height:18px;filter:invert(1);"> Rute</a>
+  <a href="#formOrder" onclick="openForm()"><img src="https://img.icons8.com/ios-filled/50/ffffff/phone.png" alt="phone" style="width:18px;height:18px;filter:invert(1);"> Pesan</a>
+</nav>
+
+<div class="container" id="ruteList">
+  <div class="rute-card">
+    <h3>Ujungbatu → Pekanbaru</h3>
+    <p>Keberangkatan: 09.00 WIB</p>
+    <button class="btn" onclick="bukaForm('Ujungbatu - Pekanbaru 09.00 WIB')">Pesan</button>
+  </div>
+
+  <div class="rute-card">
+    <h3>Pekanbaru → Ujungbatu</h3>
+    <p>Keberangkatan: 16.00 WIB</p>
+    <button class="btn" onclick="bukaForm('Pekanbaru - Ujungbatu 16.00 WIB')">Pesan</button>
+  </div>
+</div>
+
+<form id="formOrder">
+  <h2 style="text-align:center;color:#6a1b9a;">Form Pemesanan</h2>
+
+  <label>Nama</label>
+  <input type="text" id="nama" placeholder="Nama lengkap" required>
+
+  <label>Rute</label>
+  <select id="rute">
+    <option value="Ujungbatu - Pekanbaru 09.00 WIB">Ujungbatu - Pekanbaru 09.00 WIB</option>
+    <option value="Pekanbaru - Ujungbatu 16.00 WIB">Pekanbaru - Ujungbatu 16.00 WIB</option>
+  </select>
+
+  <label>Detail Alamat Jemput</label>
+  <textarea id="alamat" rows="2" placeholder="Contoh: Jalan Sudirman No. 10"></textarea>
+
+  <label>Titik Koordinat Jemput</label>
+  <div class="row">
+    <div class="col">
+      <input type="text" id="koordinat" placeholder="Contoh: -0.5214, 101.4500 atau paste link Google Maps">
+    </div>
+    <div style="width:140px">
+      <button type="button" class="btn" onclick="ambilLokasi()">Ambil Lokasi Sekarang</button>
+    </div>
+  </div>
+
+  <div id="map" style="display:none;"></div>
+  <div class="small">Ketuk peta untuk memilih titik jemput lain (marker akan berpindah). Anda juga dapat mengedit koordinat secara manual atau paste link Google Maps.</div>
+
+  <label>Metode Bayar</label>
+  <select id="metode">
+    <option value="Cash">Cash</option>
+    <option value="Transfer">Transfer</option>
+  </select>
+
+  <button type="button" class="btn" onclick="kirimWA()">Kirim ke WhatsApp</button>
+</form>
+
+<div class="footer">© 2025 TRAVELINDO</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+<script>
+let map = null;
+let marker = null;
+
+function showRute() {
+  document.getElementById('ruteList').style.display = 'block';
+  document.getElementById('formOrder').style.display = 'none';
+}
+
+function openForm() {
+  document.getElementById('ruteList').style.display = 'none';
+  document.getElementById('formOrder').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+function bukaForm(ruteTerpilih) {
+  openForm();
+  document.getElementById('rute').value = ruteTerpilih;
+  showMapContainer();
+}
+
+function showMapContainer() {
+  document.getElementById('map').style.display = 'block';
+  if (!map) {
+    initMap();
+  }
+}
+
+function initMap() {
+  map = L.map('map').setView([-0.507, 101.449], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  map.on('click', function(e) {
+    placeMarker(e.latlng.lat, e.latlng.lng);
+  });
+}
+
+function placeMarker(lat, lng) {
+  if (!map) showMapContainer();
+  if (marker) {
+    marker.setLatLng([lat, lng]);
+  } else {
+    marker = L.marker([lat, lng], {draggable:true}).addTo(map);
+    marker.on('dragend', function(e){
+      const pos = e.target.getLatLng();
+      updateCoordInput(pos.lat, pos.lng);
+    });
+  }
+  map.setView([lat, lng], 15);
+  updateCoordInput(lat, lng);
+}
+
+function updateCoordInput(lat, lng) {
+  document.getElementById('koordinat').value = lat.toFixed(6) + ', ' + lng.toFixed(6);
+}
+
+function ambilLokasi() {
+  if (!navigator.geolocation) {
+    alert('Geolocation tidak didukung pada perangkat ini.');
+    return;
+  }
+
+  showMapContainer();
+
+  navigator.geolocation.getCurrentPosition(function(position) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+    placeMarker(lat, lng);
+  }, function(err) {
+    alert('Gagal mendapatkan lokasi. Aktifkan GPS & izinkan akses.');
+  }, {
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 0
+  });
+}
+
+function kirimWA() {
+  const nama = document.getElementById('nama').value.trim();
+  const rute = document.getElementById('rute').value.trim();
+  const alamat = document.getElementById('alamat').value.trim();
+  const koordinatInput = document.getElementById('koordinat').value.trim();
+  const metode = document.getElementById('metode').value.trim();
+
+  // Validasi wajib diisi
+  if (!nama || !rute || !alamat || !koordinatInput || !metode) {
+    alert('Semua form wajib diisi sebelum mengirim pesanan!');
+    return;
+  }
+
+  // Buat link Google Maps dari input koordinat jika perlu
+  let koordinatLink = koordinatInput;
+  // Jika user paste link Google Maps langsung, pakai apa adanya
+  if (!/^https?:\/\//i.test(koordinatLink)) {
+    // coba cari pola koordinat: "lat, lng" atau "lat lng"
+    const m = koordinatLink.match(/(-?\d+\.\d+)[,\s]+(-?\d+\.\d+)/);
+    if (m) {
+      const lat = m[1];
+      const lng = m[2];
+      koordinatLink = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+    } else {
+      // jika tidak cocok, biarkan apa adanya (user mungkin menulis alamat atau catatan)
+      // tapi tetap jangan biarkan string kosong karena sudah divalidasi
+      // tambahkan prefix agar terlihat clickable jika itu bukan url
+      if (!/^https?:\/\//i.test(koordinatLink)) {
+        koordinatLink = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(koordinatLink);
+      }
+    }
+  }
+
+  // Susunan pesan rapi dengan emoji/icon. Buat plain text lalu encode satu kali.
+  const pesanPlain = 
+`🟣 *PEMESANAN TRAVELINDO* 🟣
+
+👤 *Nama*: ${nama}
+🛣️ *Rute*: ${rute}
+
+📍 *Alamat Jemput*:
+${alamat}
+
+📌 *Lokasi (klik untuk buka Maps)*:
+${koordinatLink}
+
+💳 *Metode Pembayaran*: ${metode}
+
+🙏 Terima kasih.`;
+
+  const encoded = encodeURIComponent(pesanPlain);
+
+  // Nomor tujuan WA (format internasional tanpa +)
+  const nomor = '6281262433533';
+  const url = 'https://wa.me/' + nomor + '?text=' + encoded;
+
+  // Buka di tab baru
+  window.open(url, '_blank');
+}
+</script>
+
+</body>
+</html>
