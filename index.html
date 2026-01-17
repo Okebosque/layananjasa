@@ -3,185 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GACOR EXPRESS</title>
+<title>Gacor Express</title>
 
-<!-- Bootstrap 5 -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
-<!-- Leaflet (OpenStreetMap) -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-<!-- Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1abc9c">
 
 <style>
 body{
-  background:#f4f6f9;
+  background:#f5f6fa;
 }
 .app-header{
-  background:linear-gradient(135deg,#0d6efd,#20c997);
-  color:white;
+  background:linear-gradient(135deg,#1abc9c,#16a085);
+  color:#fff;
   padding:20px;
+  border-radius:0 0 25px 25px;
   text-align:center;
 }
 .banner img{
+  display:block;
+  margin:auto;
   max-width:100%;
-  border-radius:12px;
+  border-radius:15px;
 }
 .menu-card{
   cursor:pointer;
-  transition:.3s;
+  border-radius:15px;
 }
-.menu-card:hover{
-  transform:scale(1.05);
-}
-#map{
-  height:250px;
+.menu-card i{
+  font-size:32px;
+  color:#1abc9c;
 }
 </style>
 </head>
+
 <body>
 
 <div class="app-header">
-  <h2 class="fw-bold">GACOR EXPRESS</h2>
-  <p>Layanan Antar Jemput Ojek Online & Antar Makanan<br>Area Long Ikis</p>
+  <h4 class="fw-bold mb-1">GACOR EXPRESS</h4>
+  <small>Layanan Antar Jemput & Delivery</small>
 </div>
 
-<div class="container my-3">
+<div class="container mt-3">
 
-  <!-- Banner -->
-  <div class="banner text-center mb-4">
+  <div class="banner mb-4 text-center">
     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEijvQWrMotbzVppCxgv1YTqOcGuT3ZM4QrhljQ5TqxCKjYiu8bHlzNvySFMT5hoeol8EPnIp2EMGnwZa5YIMORbyeC5H3YoO0_2RFXYbetZQL-zIfPcpC-l4fMvD_e5KJT9Qc2F_k01Tv9mX12j1Km96Ll3oYH5CrhfGwbymFb3dkH_63ED_T3A1DUnK3s/s320/IMG_20260117_100108.jpg">
   </div>
 
-  <!-- Menu -->
-  <div class="row text-center g-3">
+  <div class="row g-3">
     <div class="col-4">
-      <div class="card menu-card p-3" onclick="openOrder('Ojek Online')">
-        <i class="bi bi-bicycle fs-1 text-primary"></i>
-        <p class="mt-2 fw-semibold">Ojek Online</p>
+      <div class="card menu-card text-center p-3" onclick="openForm('Ojek Online')">
+        <i class="bi bi-bicycle"></i>
+        <small class="fw-bold">Ojek</small>
       </div>
     </div>
     <div class="col-4">
-      <div class="card menu-card p-3" onclick="openOrder('Food Delivery')">
-        <i class="bi bi-bag-heart fs-1 text-success"></i>
-        <p class="mt-2 fw-semibold">Food Delivery</p>
+      <div class="card menu-card text-center p-3" onclick="openForm('Food Delivery')">
+        <i class="bi bi-bag-heart"></i>
+        <small class="fw-bold">Food</small>
       </div>
     </div>
     <div class="col-4">
-      <div class="card menu-card p-3" onclick="openOrder('Jastip')">
-        <i class="bi bi-box-seam fs-1 text-warning"></i>
-        <p class="mt-2 fw-semibold">Jastip</p>
+      <div class="card menu-card text-center p-3" onclick="openForm('Jastip')">
+        <i class="bi bi-box-seam"></i>
+        <small class="fw-bold">Jastip</small>
       </div>
     </div>
   </div>
 
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="orderModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
+<!-- MODAL -->
+<div class="modal fade" id="orderModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
       <div class="modal-header">
         <h5 class="modal-title">Form Pemesanan</h5>
         <button class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-
-        <div class="mb-2">
-          <label>Nama Pemesan</label>
-          <input type="text" id="nama" class="form-control">
-        </div>
-
-        <div class="mb-2">
-          <label>Layanan</label>
-          <input type="text" id="layanan" class="form-control" readonly>
-        </div>
-
-        <button class="btn btn-primary mb-2 w-100" onclick="getLocation()">📍 Ambil Lokasi Jemput</button>
-
-        <div id="map" class="mb-2"></div>
-
-        <div class="mb-2">
-          <label>Tujuan Antar</label>
-          <input type="text" id="tujuan" class="form-control" placeholder="Masukkan koordinat / klik peta">
-        </div>
-
-        <div class="mb-2">
-          <label>Tarif</label>
-          <input type="text" id="tarif" class="form-control" readonly>
-        </div>
-
-        <button class="btn btn-success w-100" onclick="sendWA()">🚀 Kirim Pesanan via WhatsApp</button>
-
+        <input class="form-control mb-2" id="nama" placeholder="Nama Pemesan">
+        <input class="form-control mb-2" id="layanan" readonly>
+        <button class="btn btn-outline-success w-100 mb-2" onclick="getLocation()">📍 Ambil Lokasi Jemput</button>
+        <input class="form-control mb-2" id="jemput" readonly placeholder="Lokasi Jemput">
+        <input class="form-control mb-2" id="antar" placeholder="Lokasi Antar">
+        <input class="form-control mb-2" id="tarif" readonly placeholder="Tarif">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success w-100" onclick="kirimWA()">Kirim Pesanan</button>
       </div>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-let modal = new bootstrap.Modal(document.getElementById('orderModal'));
-let map, markerJemput, markerAntar;
-let jemputLatLng, antarLatLng;
+let lat1, lon1;
 
-function openOrder(layanan){
+function openForm(layanan){
   document.getElementById('layanan').value = layanan;
-  modal.show();
-  setTimeout(initMap,500);
-}
-
-function initMap(){
-  if(map) return;
-  map = L.map('map').setView([-2.1,116.3],13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© OpenStreetMap'
-  }).addTo(map);
-
-  map.on('click', function(e){
-    antarLatLng = e.latlng;
-    if(markerAntar) map.removeLayer(markerAntar);
-    markerAntar = L.marker(antarLatLng).addTo(map).bindPopup("Lokasi Antar").openPopup();
-    hitungTarif();
-  });
+  new bootstrap.Modal(document.getElementById('orderModal')).show();
 }
 
 function getLocation(){
   navigator.geolocation.getCurrentPosition(pos=>{
-    jemputLatLng = {
-      lat:pos.coords.latitude,
-      lng:pos.coords.longitude
-    };
-    map.setView(jemputLatLng,15);
-    if(markerJemput) map.removeLayer(markerJemput);
-    markerJemput = L.marker(jemputLatLng).addTo(map).bindPopup("Lokasi Jemput").openPopup();
+    lat1 = pos.coords.latitude;
+    lon1 = pos.coords.longitude;
+    document.getElementById('jemput').value = lat1+","+lon1;
   });
 }
 
-function hitungTarif(){
-  let jarak = map.distance(jemputLatLng,antarLatLng)/1000;
+function hitungTarif(jarak){
   let tarif = 9000;
   if(jarak > 1){
-    let extra = (jarak - 1) * 1000;
-    if(extra < 500) extra = 1000;
-    else extra = Math.round(extra/1000)*1000;
-    tarif += extra;
+    let sisa = jarak - 1;
+    let ribuan = Math.ceil(sisa * 10) * 1000;
+    tarif += ribuan;
   }
-  document.getElementById('tarif').value = "Rp " + tarif.toLocaleString();
+  return tarif;
 }
 
-function sendWA(){
-  let nama = document.getElementById('nama').value;
-  let layanan = document.getElementById('layanan').value;
-  let mapsLink = `https://www.google.com/maps?q=${jemputLatLng.lat},${jemputLatLng.lng}`;
-  let msg = `Halo GACOR EXPRESS%0A
-Nama: ${nama}%0A
-Layanan: ${layanan}%0A
-Lokasi Jemput: ${mapsLink}%0A
-Tarif: ${document.getElementById('tarif').value}`;
-  window.open(`https://wa.me/6282154306353?text=${msg}`,'_blank');
+function kirimWA(){
+  let nama = nama.value;
+  let layanan = layanan.value;
+  let jemput = jemput.value;
+  let antar = antar.value;
+
+  let urlMaps = `https://www.openstreetmap.org/?mlat=${lat1}&mlon=${lon1}`;
+  let tarif = hitungTarif(1.6);
+  document.getElementById('tarif').value = "Rp "+tarif;
+
+  let teks = `Pesanan GACOR EXPRESS
+Nama: ${nama}
+Layanan: ${layanan}
+Jemput: ${jemput}
+Antar: ${antar}
+Tarif: Rp ${tarif}
+Maps: ${urlMaps}`;
+
+  window.open(`https://wa.me/6282154306353?text=${encodeURIComponent(teks)}`);
+}
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('service-worker.js');
 }
 </script>
 
