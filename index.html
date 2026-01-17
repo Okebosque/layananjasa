@@ -1,124 +1,158 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>OJEXY - Ojek Online</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#198754">
-  <style>
-    body{padding-bottom:70px;background:#f6f7f9}
-    .banner{display:flex;justify-content:center;margin:10px}
-    .banner img{max-width:100%;border-radius:12px}
-    .menu-card{border-radius:16px}
-    .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:60px;background:#fff;border-top:1px solid #ddd;display:flex}
-    .bottom-nav a{flex:1;text-align:center;padding-top:6px;font-size:12px;color:#555;text-decoration:none}
-    .bottom-nav i{font-size:20px;display:block}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GACOR EXPRESS</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+
+<style>
+body {
+  background:#f5f5f5;
+}
+.app-header {
+  background: linear-gradient(135deg,#1e88e5,#43a047);
+  color:#fff;
+  padding:20px;
+  text-align:center;
+}
+.banner img {
+  max-width:100%;
+  border-radius:15px;
+}
+.menu-btn {
+  border-radius:15px;
+  padding:20px;
+  background:#fff;
+  box-shadow:0 4px 10px rgba(0,0,0,.1);
+  cursor:pointer;
+}
+.menu-btn i {
+  font-size:30px;
+}
+</style>
 </head>
-<body><div class="container">
-  <h4 class="mt-3">OJEXY</h4>  <div class="banner">
-    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEijvQWrMotbzVppCxgv1YTqOcGuT3ZM4QrhljQ5TqxCKjYiu8bHlzNvySFMT5hoeol8EPnIp2EMGnwZa5YIMORbyeC5H3YoO0_2RFXYbetZQL-zIfPcpC-l4fMvD_e5KJT9Qc2F_k01Tv9mX12j1Km96Ll3oYH5CrhfGwbymFb3dkH_63ED_T3A1DUnK3s/s320/IMG_20260117_100108.jpg" alt="Banner">
-  </div>  <div class="row g-3 mt-2">
+
+<body>
+
+<div class="app-header">
+  <h3>GACOR EXPRESS</h3>
+  <small>Layanan Antar Jemput & Makanan</small>
+</div>
+
+<div class="container my-3">
+
+  <!-- Banner -->
+  <div class="banner text-center mb-4">
+    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEijvQWrMotbzVppCxgv1YTqOcGuT3ZM4QrhljQ5TqxCKjYiu8bHlzNvySFMT5hoeol8EPnIp2EMGnwZa5YIMORbyeC5H3YoO0_2RFXYbetZQL-zIfPcpC-l4fMvD_e5KJT9Qc2F_k01Tv9mX12j1Km96Ll3oYH5CrhfGwbymFb3dkH_63ED_T3A1DUnK3s/s320/IMG_20260117_100108.jpg">
+  </div>
+
+  <!-- Menu -->
+  <div class="row g-3 text-center">
     <div class="col-4">
-      <div class="card menu-card text-center p-3" onclick="openOrder('Ojek Online')">
-        <i class="bi bi-bicycle fs-1 text-success"></i>
+      <div class="menu-btn" onclick="openOrder('Ojek Online')">
+        <i>🏍</i>
         <div>Ojek</div>
       </div>
     </div>
     <div class="col-4">
-      <div class="card menu-card text-center p-3" onclick="openOrder('Food Delivery')">
-        <i class="bi bi-bag-heart fs-1 text-danger"></i>
+      <div class="menu-btn" onclick="openOrder('Food Delivery')">
+        <i>🍔</i>
         <div>Food</div>
       </div>
     </div>
     <div class="col-4">
-      <div class="card menu-card text-center p-3" onclick="openOrder('Jastip')">
-        <i class="bi bi-box-seam fs-1 text-primary"></i>
+      <div class="menu-btn" onclick="openOrder('Jastip')">
+        <i>📦</i>
         <div>Jastip</div>
       </div>
     </div>
   </div>
-</div><!-- Modal Order --><div class="modal fade" id="orderModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Pesan Layanan</h5>
-        <button class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <input type="text" id="nama" class="form-control mb-2" placeholder="Nama Pemesan">
-        <input type="text" id="layanan" class="form-control mb-2" readonly>
-        <button class="btn btn-outline-success w-100 mb-2" onclick="getLocation()">Ambil Lokasi Jemput</button>
-        <input type="text" id="jemput" class="form-control mb-2" placeholder="Lokasi Jemput" readonly>
-        <input type="text" id="antar" class="form-control mb-2" placeholder="Lokasi Antar (alamat)">
-        <input type="text" id="tarif" class="form-control mb-2" placeholder="Tarif" readonly>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-success w-100" onclick="kirimWA()">Kirim Pesanan</button>
-      </div>
-    </div>
-  </div>
-</div><!-- Bottom Nav --><div class="bottom-nav">
-  <a href="#"><i class="bi bi-house"></i>Home</a>
-  <a href="https://wa.me/6282154306353"><i class="bi bi-question-circle"></i>Tanya</a>
-  <a href="https://wa.me/6282154306353"><i class="bi bi-chat"></i>Admin</a>
-</div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>
-let modal = new bootstrap.Modal(document.getElementById('orderModal'));
-let latJemput, lonJemput;
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="orderModal">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">Form Pemesanan</h5>
+<button class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<div class="modal-body">
+<input type="text" id="nama" class="form-control mb-2" placeholder="Nama Pemesan">
+<input type="text" id="layanan" class="form-control mb-2" readonly>
+
+<button class="btn btn-primary w-100 mb-2" onclick="getLocation()">Ambil Lokasi Jemput (GPS)</button>
+<input type="text" id="jemput" class="form-control mb-2" readonly placeholder="Lokasi Jemput">
+
+<input type="text" id="antar" class="form-control mb-2" placeholder="Tujuan Antar">
+
+<input type="text" id="tarif" class="form-control mb-2" readonly placeholder="Tarif">
+</div>
+
+<div class="modal-footer">
+<button class="btn btn-success w-100" onclick="kirimWA()">Kirim Pesanan</button>
+</div>
+
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+let lat1, lon1;
 
 function openOrder(layanan){
-  document.getElementById('layanan').value = layanan;
-  modal.show();
+  document.getElementById("layanan").value = layanan;
+  new bootstrap.Modal(document.getElementById("orderModal")).show();
 }
 
 function getLocation(){
   navigator.geolocation.getCurrentPosition(pos=>{
-    latJemput = pos.coords.latitude;
-    lonJemput = pos.coords.longitude;
-    document.getElementById('jemput').value = latJemput+','+lonJemput;
-  },()=>alert('GPS tidak aktif'));
+    lat1 = pos.coords.latitude;
+    lon1 = pos.coords.longitude;
+    document.getElementById("jemput").value = lat1+","+lon1;
+  });
 }
 
-async function kirimWA(){
-  const nama = document.getElementById('nama').value;
-  const layanan = document.getElementById('layanan').value;
-  const antar = document.getElementById('antar').value;
-
-  const geo = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(antar)}`);
-  const g = await geo.json();
-  if(!g.length){alert('Alamat tujuan tidak ditemukan');return;}
-
-  const lat2 = g[0].lat;
-  const lon2 = g[0].lon;
-
-  const route = await fetch(`https://router.project-osrm.org/route/v1/driving/${lonJemput},${latJemput};${lon2},${lat2}?overview=false`);
-  const data = await route.json();
-  const km = data.routes[0].distance/1000;
-
+function hitungTarif(km){
   let tarif = 9000;
-  if(km > 1){
-    tarif += Math.round(km-1) * 1000;
+  if(km>1){
+    let extra = Math.round((km-1)*1000);
+    tarif += Math.round(extra/1000)*1000;
   }
-  document.getElementById('tarif').value = 'Rp '+tarif;
+  return tarif;
+}
 
-  const mapsUrl = `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${latJemput},${lonJemput};${lat2},${lon2}`;
+function kirimWA(){
+  let nama = nama.value;
+  let layanan = document.getElementById("layanan").value;
+  let jemput = document.getElementById("jemput").value;
+  let antar = document.getElementById("antar").value;
 
-  const text = `Pesanan OJEXY%0A
+  let maps = `https://www.google.com/maps?q=${jemput}`;
+  let tarif = hitungTarif(1.6); // simulasi jarak
+  document.getElementById("tarif").value = tarif;
+
+  let text = `Pesanan GACOR EXPRESS%0A
 Nama: ${nama}%0A
 Layanan: ${layanan}%0A
-Jemput: ${latJemput},${lonJemput}%0A
+Jemput: ${jemput}%0A
 Antar: ${antar}%0A
-Jarak: ${km.toFixed(2)} KM%0A
-Tarif: Rp ${tarif}%0A
-Maps: ${mapsUrl}`;
+Tarif: Rp${tarif}%0A
+Maps: ${maps}`;
 
-  window.location.href = `https://wa.me/6282154306353?text=${text}`;
+  window.open(`https://wa.me/6282154306353?text=${text}`);
 }
 
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js');
 }
-</script></body>
+</script>
+
+</body>
 </html>
