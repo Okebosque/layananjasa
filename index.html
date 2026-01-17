@@ -5,193 +5,202 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GACOR EXPRESS</title>
 
-<!-- Bootstrap -->
+<!-- Bootstrap 5 -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <!-- Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <style>
-body{background:#f2f4f7}
-.app{max-width:420px;margin:auto;background:#fff;min-height:100vh}
-.header{background:linear-gradient(135deg,#0d6efd,#20c997);color:#fff;padding:15px}
-.menu-item{background:#f8f9fa;border-radius:15px;padding:15px;text-align:center;cursor:pointer}
-.menu-item i{font-size:28px}
-#map{height:300px;border-radius:10px}
+body{
+    background:#f5f7fa;
+    padding-bottom:80px;
+}
+.header{
+    background:linear-gradient(135deg,#1e90ff,#2ecc71);
+    color:#fff;
+    padding:15px;
+    border-radius:0 0 20px 20px;
+}
+.service-card{
+    border-radius:15px;
+    text-align:center;
+    padding:15px;
+    background:#fff;
+    box-shadow:0 4px 10px rgba(0,0,0,.1);
+    cursor:pointer;
+}
+.service-card i{
+    font-size:30px;
+    color:#2ecc71;
+}
+#map{
+    height:300px;
+    border-radius:10px;
+}
+.bottom-nav{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    background:#fff;
+    border-top:1px solid #ddd;
+}
+.bottom-nav a{
+    text-decoration:none;
+    color:#555;
+    font-size:13px;
+}
+.bottom-nav i{
+    font-size:20px;
+}
 </style>
 </head>
-
 <body>
 
-<div class="app">
-
-<div class="header">
-<h5 class="fw-bold mb-0">GACOR EXPRESS</h5>
-<small>Ojek Online & Antar Makanan<br>Area Long Ikis</small>
+<!-- HEADER -->
+<div class="header text-center">
+    <h4 class="fw-bold">GACOR EXPRESS</h4>
+    <p class="mb-1">Layanan Antar Jemput & Delivery</p>
 </div>
 
-<img src="banner.jpg" class="img-fluid">
+<!-- BANNER -->
+<div class="container mt-3">
+    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEijvQWrMotbzVppCxgv1YTqOcGuT3ZM4QrhljQ5TqxCKjYiu8bHlzNvySFMT5hoeol8EPnIp2EMGnwZa5YIMORbyeC5H3YoO0_2RFXYbetZQL-zIfPcpC-l4fMvD_e5KJT9Qc2F_k01Tv9mX12j1Km96Ll3oYH5CrhfGwbymFb3dkH_63ED_T3A1DUnK3s/s320/IMG_20260117_100108.jpg" 
+    class="img-fluid rounded">
+</div>
 
-<div class="p-3">
-<div class="row g-3 text-center">
+<!-- SERVICES -->
+<div class="container mt-4">
+<div class="row g-3">
     <div class="col-4">
-        <div class="menu-item" onclick="openOrder('Ojek Online')">
-            <i class="bi bi-bicycle text-primary"></i>
-            <div>Ojek</div>
+        <div class="service-card" onclick="openOrder('Ojek Online')">
+            <i class="bi bi-bicycle"></i>
+            <p class="mt-2 mb-0">Ojek Online</p>
         </div>
     </div>
     <div class="col-4">
-        <div class="menu-item" onclick="openOrder('Food Delivery')">
-            <i class="bi bi-bag-heart text-success"></i>
-            <div>Food</div>
+        <div class="service-card" onclick="openOrder('Food Delivery')">
+            <i class="bi bi-bag-heart"></i>
+            <p class="mt-2 mb-0">Food Delivery</p>
         </div>
     </div>
     <div class="col-4">
-        <div class="menu-item" onclick="openOrder('Jastip')">
-            <i class="bi bi-box-seam text-warning"></i>
-            <div>Jastip</div>
+        <div class="service-card" onclick="openOrder('Jastip')">
+            <i class="bi bi-box-seam"></i>
+            <p class="mt-2 mb-0">Jastip</p>
         </div>
     </div>
 </div>
 </div>
 
-</div>
-
-<!-- MODAL -->
-<div class="modal fade" id="orderModal">
-<div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+<!-- MODAL ORDER -->
+<div class="modal fade" id="orderModal" tabindex="-1">
+<div class="modal-dialog modal-lg modal-dialog-centered">
 <div class="modal-content">
-
 <div class="modal-header">
-<h5 class="modal-title">Form Pemesanan</h5>
-<button class="btn-close" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title">Form Pemesanan</h5>
+    <button class="btn-close" data-bs-dismiss="modal"></button>
 </div>
-
 <div class="modal-body">
 
-<div class="mb-2">
-<label>Nama Pemesan</label>
-<input id="nama" class="form-control">
-</div>
+<input type="text" id="nama" class="form-control mb-2" placeholder="Nama Pemesan">
+<input type="text" id="layanan" class="form-control mb-2" readonly>
 
-<div class="mb-2">
-<label>Layanan</label>
-<input id="layanan" class="form-control" readonly>
-</div>
+<button class="btn btn-success w-100 mb-2" onclick="getLocation()">📍 Ambil Lokasi Jemput</button>
+<input type="text" id="jemput" class="form-control mb-2" placeholder="Titik Jemput" readonly>
 
-<div class="mb-2">
-<label>Jemput</label>
-<input id="jemput" class="form-control" readonly>
-</div>
-
-<div class="mb-2">
-<label>Antar (Tap Peta)</label>
-<input id="antar" class="form-control" readonly>
-</div>
-
-<div class="mb-2">
-<label>Tarif</label>
-<input id="tarif" class="form-control fw-bold" readonly>
-</div>
+<input type="text" id="antar" class="form-control mb-2" placeholder="Titik Antar (klik peta)">
 
 <div id="map"></div>
 
-<button class="btn btn-success w-100 mt-3" onclick="kirimWA()">
-<i class="bi bi-whatsapp"></i> Kirim Pesanan
-</button>
-
+<div class="alert alert-info mt-2">
+    Tarif: <strong id="tarif">Rp 0</strong>
 </div>
 
+<button class="btn btn-primary w-100" onclick="kirimWA()">Kirim Pesanan</button>
+
+</div>
 </div>
 </div>
 </div>
 
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+<div class="container">
+<div class="row text-center py-2">
+    <div class="col">
+        <a href="#"><i class="bi bi-house"></i><br>Home</a>
+    </div>
+    <div class="col">
+        <a href="#"><i class="bi bi-clock-history"></i><br>Proses</a>
+    </div>
+    <div class="col">
+        <a href="https://wa.me/6282154306353"><i class="bi bi-chat-dots"></i><br>Tanya Admin</a>
+    </div>
+</div>
+</div>
+</div>
+
+<!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-let modal = new bootstrap.Modal(document.getElementById('orderModal'));
-let map, jemputMarker, antarMarker;
-let lat1, lon1;
+let map, jemputMarker, antarMarker, jemputLatLng, antarLatLng;
 
-// buka form
-function openOrder(service){
-    document.getElementById('layanan').value = service;
-    modal.show();
-    setTimeout(initMap,500);
+function openOrder(layanan){
+    document.getElementById('layanan').value = layanan;
+    new bootstrap.Modal(document.getElementById('orderModal')).show();
+    setTimeout(initMap,300);
 }
 
-// init map
 function initMap(){
     if(map) return;
-
-    map = L.map('map').setView([0,0], 15);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-        attribution:'© OpenStreetMap'
-    }).addTo(map);
-
-    navigator.geolocation.getCurrentPosition(pos=>{
-        lat1 = pos.coords.latitude;
-        lon1 = pos.coords.longitude;
-
-        map.setView([lat1,lon1],16);
-        jemputMarker = L.marker([lat1,lon1]).addTo(map).bindPopup("Titik Jemput").openPopup();
-        document.getElementById('jemput').value = lat1+', '+lon1;
-    });
+    map = L.map('map').setView([-7.9,112.6],13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     map.on('click', function(e){
+        antarLatLng = e.latlng;
         if(antarMarker) map.removeLayer(antarMarker);
-        antarMarker = L.marker(e.latlng).addTo(map).bindPopup("Tujuan").openPopup();
-
-        document.getElementById('antar').value = e.latlng.lat+', '+e.latlng.lng;
-
-        let jarak = hitungJarak(lat1,lon1,e.latlng.lat,e.latlng.lng);
-        let tarif = hitungTarif(jarak);
-        document.getElementById('tarif').value = 'Rp ' + tarif.toLocaleString();
+        antarMarker = L.marker(antarLatLng).addTo(map).bindPopup("Titik Antar").openPopup();
+        document.getElementById('antar').value = antarLatLng.lat + "," + antarLatLng.lng;
+        hitungTarif();
     });
 }
 
-// hitung jarak
-function hitungJarak(lat1,lon1,lat2,lon2){
-    const R = 6371;
-    const dLat = (lat2-lat1)*Math.PI/180;
-    const dLon = (lon2-lon1)*Math.PI/180;
-    const a =
-      Math.sin(dLat/2)*Math.sin(dLat/2) +
-      Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180) *
-      Math.sin(dLon/2)*Math.sin(dLon/2);
-    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+function getLocation(){
+    navigator.geolocation.getCurrentPosition(pos=>{
+        jemputLatLng = {lat:pos.coords.latitude, lng:pos.coords.longitude};
+        document.getElementById('jemput').value = jemputLatLng.lat + "," + jemputLatLng.lng;
+        map.setView(jemputLatLng,15);
+        if(jemputMarker) map.removeLayer(jemputMarker);
+        jemputMarker = L.marker(jemputLatLng).addTo(map).bindPopup("Titik Jemput").openPopup();
+    });
 }
 
-// hitung tarif
-function hitungTarif(jarak){
+function hitungTarif(){
+    if(!jemputLatLng || !antarLatLng) return;
+    let d = map.distance(jemputLatLng, antarLatLng) / 1000;
     let tarif = 9000;
-    if(jarak > 1){
-        let sisa = (jarak-1)*1000;
-        if(sisa < 500) sisa = 1000;
-        else sisa = Math.ceil(sisa/1000)*1000;
-        tarif += sisa;
+    if(d > 1){
+        let tambahan = (d - 1) * 1000;
+        tarif += Math.round(tambahan/1000)*1000;
     }
-    return tarif;
+    document.getElementById('tarif').innerText = "Rp " + tarif.toLocaleString();
 }
 
-// kirim ke WA
 function kirimWA(){
-    let text =
-`Nama: ${nama.value}
+    let text = `PESANAN GACOR EXPRESS
+Nama: ${nama.value}
 Layanan: ${layanan.value}
 Jemput: ${jemput.value}
 Antar: ${antar.value}
-Tarif: ${tarif.value}`;
-
-    window.open(
-        `https://wa.me/6282154306353?text=${encodeURIComponent(text)}`,
-        '_blank'
-    );
+Tarif: ${tarif.innerText}`;
+    window.open("https://wa.me/6282154306353?text="+encodeURIComponent(text));
 }
 </script>
 
