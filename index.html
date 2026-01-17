@@ -64,7 +64,7 @@
   <a href="#"><i class="bi bi-house"></i>Home</a>
   <a href="https://wa.me/6282154306353"><i class="bi bi-question-circle"></i>Tanya</a>
   <a href="https://wa.me/6282154306353"><i class="bi bi-chat"></i>Admin</a>
-</div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script><script>
+</div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>
 let modal = new bootstrap.Modal(document.getElementById('orderModal'));
 let latJemput, lonJemput;
 
@@ -78,21 +78,7 @@ function getLocation(){
     latJemput = pos.coords.latitude;
     lonJemput = pos.coords.longitude;
     document.getElementById('jemput').value = latJemput+','+lonJemput;
-  });
-}
-
-async function hitungTarif(lat2, lon2){
-  const url = `https://router.project-osrm.org/route/v1/driving/${lonJemput},${latJemput};${lon2},${lat2}?overview=false`;
-  const res = await fetch(url);
-  const data = await res.json();
-  const km = data.routes[0].distance/1000;
-  let tarif = 9000;
-  if(km > 1){
-    let extra = Math.ceil((km-1)*1000/1000)*1000;
-    tarif += extra;
-  }
-  document.getElementById('tarif').value = 'Rp '+tarif;
-  return tarif;
+  },()=>alert('GPS tidak aktif'));
 }
 
 async function kirimWA(){
@@ -100,11 +86,22 @@ async function kirimWA(){
   const layanan = document.getElementById('layanan').value;
   const antar = document.getElementById('antar').value;
 
-  const geo = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${antar}`);
+  const geo = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(antar)}`);
   const g = await geo.json();
+  if(!g.length){alert('Alamat tujuan tidak ditemukan');return;}
+
   const lat2 = g[0].lat;
   const lon2 = g[0].lon;
-  const tarif = await hitungTarif(lat2, lon2);
+
+  const route = await fetch(`https://router.project-osrm.org/route/v1/driving/${lonJemput},${latJemput};${lon2},${lat2}?overview=false`);
+  const data = await route.json();
+  const km = data.routes[0].distance/1000;
+
+  let tarif = 9000;
+  if(km > 1){
+    tarif += Math.round(km-1) * 1000;
+  }
+  document.getElementById('tarif').value = 'Rp '+tarif;
 
   const mapsUrl = `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${latJemput},${lonJemput};${lat2},${lon2}`;
 
@@ -113,13 +110,13 @@ Nama: ${nama}%0A
 Layanan: ${layanan}%0A
 Jemput: ${latJemput},${lonJemput}%0A
 Antar: ${antar}%0A
+Jarak: ${km.toFixed(2)} KM%0A
 Tarif: Rp ${tarif}%0A
 Maps: ${mapsUrl}`;
 
   window.location.href = `https://wa.me/6282154306353?text=${text}`;
 }
 
-// PWA
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js');
 }
